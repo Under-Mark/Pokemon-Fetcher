@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Simple Pokemon Abilities</title>
+  <style>
+  body{
+    font-family:Arial;
+    text-align:center;
+    margin-top:40px
+    }
+    ul{
+    list-style:none;
+    padding:0
+    }
+    </style>
+</head>
+<body>
+  <h1>Pokemon Retriever</h1>
+  <input id="name" placeholder="e.g. pikachu" />
+  <button id="go">Search</button>
+  <div id="out"></div>
+<script>
+  const btn = document.getElementById('go');
+  const out = document.getElementById('out');
+
+  btn.onclick = async () => {
+    out.textContent = '';
+    const name = document.getElementById('name').value.trim().toLowerCase();
+    if (!name) {
+      out.textContent = 'Enter a name or ID.';
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(name)}`);
+      if (!res.ok) {
+        out.textContent = 'Pokemon not found.';
+        return;
+      }
+
+      const data = await res.json();
+
+      const ul = document.createElement('ul');
+      data.abilities.forEach(a => {
+        const li = document.createElement('li');
+        let label = a.ability.name;
+        if (a.is_hidden) {
+          label += ' (hidden)';
+        }
+        li.textContent = label;
+        ul.appendChild(li);
+      });
+
+      const heading = document.createElement('h2');
+      heading.textContent = data.name;
+      out.appendChild(heading);
+
+      if (data.sprites && data.sprites.front_default) {
+        const img = document.createElement('img');
+        img.src = data.sprites.front_default;
+        img.alt = data.name;
+        out.appendChild(img);
+      }
+
+      out.appendChild(ul);
+    } catch {
+      out.textContent = 'Network error.';
+    }
+  };
+</script>
+
+</body>
+</html>
